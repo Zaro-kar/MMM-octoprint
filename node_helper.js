@@ -26,32 +26,35 @@ module.exports = NodeHelper.create({
 
   async fetchData() {
     const self = this;
-
+  
     const printer_status = await this.fetchPrinterStatus();
-
+  
     if (!printer_status) {
+      this.fetchTimerId = setTimeout(async function () {
+        await self.fetchData();
+      }, this.config.updateInterval);
       return;
     }
-
+  
     const job_status = await this.fetchPrinterJob();
-
+  
     let thumbnail = null;
     let layer_information = null;
-
+  
     if (this.config.showThumbnail) {
       thumbnail = await this.fetchThumbnail(job_status);
     }
-
+  
     if (this.config.showLayerProgress) {
       layer_information = await this.fetchLayerInformation();
     }
-
-    const eta = moment.utc(1000 * (job_status.progress.printTimeLeft)).format('HH[h] mm[m] ss[s]');
-
-    const elapsed = moment.utc(1000 * (job_status.progress.printTime)).format('HH[h] mm[m] ss[s]');
   
+    const eta = moment.utc(1000 * (job_status.progress.printTimeLeft)).format('HH[h] mm[m] ss[s]');
+  
+    const elapsed = moment.utc(1000 * (job_status.progress.printTime)).format('HH[h] mm[m] ss[s]');
+    
     this.sendSocketNotification("PRINTER_STATUS", { printer_status, job_status, eta, elapsed, layer_information, thumbnail });
-
+  
     this.fetchTimerId = setTimeout(async function () {
       await self.fetchData();
     }, this.config.updateInterval);
