@@ -35,6 +35,7 @@ var config = {
                 updateInterval: 60000,
                 showThumbnail: false,
                 showLayerProgress: false,
+                showElapsedTime: false,
                 thumbnailSize: 150,
                 hideDataOnStandby: true
             }
@@ -72,6 +73,7 @@ For example:
 | `updateInterval`     | *Optional* <br>The time interval between UI updates.<br><br>**Type:** `int`(milliseconds)<br>**Default:** 60000 milliseconds (60 seconds)
 | `showThumbnail`      | *Optional* <br>Shows a thumbnail embedded in your gcode files. <br><br>**Only enable this, once you configured the thumbnails plugin and your slicer.**<br><br>**Type:** `bool` <br>**Default:** false
 | `showLayerProgress`  | *Optional* <br>Shows the layer progress. <br><br> **Only enable this, once you configured the layer progress plugin and your slicer.**<br><br>**Type:** `bool` <br>**Default:** false
+| `showElapsedTime`  | *Optional* <br>Shows the elapsed time of the print. <br><br> **Type:** `bool` <br>**Default:** false
 | `thumbnailSize`      | *Optional* <br>Changes with thumbnails size (width). Enter a integer value for an absolute value, or a relative size with % (e.g. "50%").<br><br>**Type:** `int\|string` <br>**Default:** 150
 | `hideDataOnStandby`  | *Optional* <br>Hides printer info when the printer is operational.<br><br>**Type:** `bool` <br>**Default:** true
 

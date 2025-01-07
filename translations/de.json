@@ -6,5 +6,6 @@
   "BED": "Druckbett",
   "LAYER": "Layer",
   "ETA": "Verbleibend",
+  "ELAPSED": "Verstrichen",
   "OCTOPRINT NOT AVAILABLE": "Octoprint nicht verfügbar. Drucker offline?"
 }
