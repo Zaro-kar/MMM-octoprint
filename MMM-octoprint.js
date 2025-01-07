@@ -14,6 +14,7 @@ Module.register("MMM-octoprint", {
     updateInterval: 60000,
     showThumbnail: false,
     showLayerProgress: false,
+    showElapsedTime: false,
     thumbnailSize: 150,
     hideDataOnStandby: true
   },
@@ -61,6 +62,7 @@ Module.register("MMM-octoprint", {
       printer_status: this.loading ? null : this.displayData.printer_status,
       job_status: this.loading ? null : this.displayData.job_status,
       eta: this.loading ? null : this.displayData.eta,
+      elapsed: this.loading ? null : this.displayData.elapsed,
       thumbnail: this.loading ? null : this.displayData.thumbnail,
       layer_information: this.loading ? null : this.displayData.layer_information,
       available: this.available,
