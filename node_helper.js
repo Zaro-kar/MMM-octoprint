@@ -64,7 +64,6 @@ module.exports = NodeHelper.create({
     const endpoint = this.config.endpoint + "/api/printer";
 
     try {
-      const fetch = (await import("node-fetch")).default;
       const response = await fetch(endpoint, { headers: this.getHeaders() });
       const json = await response.json();
 
@@ -81,7 +80,6 @@ module.exports = NodeHelper.create({
     const endpoint = this.config.endpoint + "/api/job";
 
     try {
-      const fetch = (await import("node-fetch")).default;
       const response = await fetch(endpoint, { headers: this.getHeaders() });
       const json = await response.json();
 
@@ -98,7 +96,6 @@ module.exports = NodeHelper.create({
     const endpoint = this.config.endpoint + "/plugin/DisplayLayerProgress/values";
 
     try {
-      const fetch = (await import("node-fetch")).default;
       const response = await fetch(endpoint, { headers: this.getHeaders() });
       const json = await response.json();
 
@@ -119,7 +116,6 @@ module.exports = NodeHelper.create({
     const endpoint = this.config.endpoint + "/api/files/" + job_status.job.file.origin + "/" + job_status.job.file.name;
 
     try {
-      const fetch = (await import("node-fetch")).default;
       const response = await fetch(endpoint, { headers: this.getHeaders() });
       const json = await response.json();
 
