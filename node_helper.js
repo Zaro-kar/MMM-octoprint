@@ -99,7 +99,6 @@ module.exports = NodeHelper.create({
       const response = await fetch(endpoint, { headers: this.getHeaders() });
       const text = await response.text();
   
-      // Überprüfen, ob die Antwort gültiges JSON ist
       if (response.headers.get("content-type").includes("application/json")) {
         const json = JSON.parse(text);
         return json;
