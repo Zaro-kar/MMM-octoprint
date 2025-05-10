@@ -53,7 +53,9 @@ module.exports = NodeHelper.create({
   
     const elapsed = moment.utc(1000 * (job_status.progress.printTime)).format('HH[h] mm[m] ss[s]');
     
-    this.sendSocketNotification("PRINTER_STATUS", { printer_status, job_status, eta, elapsed, layer_information, thumbnail });
+    const finishTime = moment().add(job_status.progress.printTimeLeft, 'seconds').format('HH:mm');
+    
+    this.sendSocketNotification("PRINTER_STATUS", { printer_status, job_status, eta, elapsed, finishTime, layer_information, thumbnail });
   
     this.fetchTimerId = setTimeout(async function () {
       await self.fetchData();
