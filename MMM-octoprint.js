@@ -65,6 +65,7 @@ Module.register("MMM-octoprint", {
       elapsed: this.loading ? null : this.displayData.elapsed,
       thumbnail: this.loading ? null : this.displayData.thumbnail,
       layer_information: this.loading ? null : this.displayData.layer_information,
+      finish_time: this.loading ? null : this.displayData.finish_time,
       available: this.available,
     };
 
