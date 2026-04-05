@@ -6,5 +6,7 @@
   "BED": "Bed",
   "LAYER": "Layer",
   "ETA": "Time left",
-  "OCTOPRINT NOT AVAILABLE": "Octoprint not available. Printer offline?"
+  "ELAPSED": "Elapsed",
+  "OCTOPRINT NOT AVAILABLE": "Octoprint not available. Printer offline?",
+  "FINISH TIME": "Finish time"
 }
