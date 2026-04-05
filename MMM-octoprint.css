@@ -28,11 +28,10 @@
 }
 
 .MMM-octoprint .column {
-    min-width: 0;
-    flex-basis: 40%;
-    flex-shrink: 0;
+    flex: 0 0 auto;
     white-space: nowrap;
     padding-right: 8px;
+    text-align: right;
 }
 
 .MMM-octoprint .column-text-of {
