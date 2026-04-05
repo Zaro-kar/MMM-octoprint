@@ -26,37 +26,52 @@ module.exports = NodeHelper.create({
 
   async fetchData() {
     const self = this;
-  
+
     const printer_status = await this.fetchPrinterStatus();
-  
-    if (!printer_status) {
+
+    if (!printer_status || printer_status.error) {
+      this.sendSocketNotification("HTTP_ERROR", {});
       this.fetchTimerId = setTimeout(async function () {
         await self.fetchData();
       }, this.config.updateInterval);
       return;
     }
-  
+
     const job_status = await this.fetchPrinterJob();
-  
+
     let thumbnail = null;
     let layer_information = null;
-  
+
     if (this.config.showThumbnail) {
       thumbnail = await this.fetchThumbnail(job_status);
     }
-  
+
     if (this.config.showLayerProgress) {
       layer_information = await this.fetchLayerInformation();
     }
-  
-    const eta = moment.utc(1000 * (job_status.progress.printTimeLeft)).format('HH[h] mm[m] ss[s]');
-  
-    const elapsed = moment.utc(1000 * (job_status.progress.printTime)).format('HH[h] mm[m] ss[s]');
-    
-    const finishTime = moment().add(job_status.progress.printTimeLeft, 'seconds').format('HH:mm:ss');
-    
-    this.sendSocketNotification("PRINTER_STATUS", { printer_status, job_status, eta, elapsed, finishTime, layer_information, thumbnail });
-  
+
+    const eta = moment
+      .utc(1000 * job_status.progress.printTimeLeft)
+      .format("HH[h] mm[m] ss[s]");
+
+    const elapsed = moment
+      .utc(1000 * job_status.progress.printTime)
+      .format("HH[h] mm[m] ss[s]");
+
+    const finishTime = moment()
+      .add(job_status.progress.printTimeLeft, "seconds")
+      .format("HH:mm:ss");
+
+    this.sendSocketNotification("PRINTER_STATUS", {
+      printer_status,
+      job_status,
+      eta,
+      elapsed,
+      finishTime,
+      layer_information,
+      thumbnail,
+    });
+
     this.fetchTimerId = setTimeout(async function () {
       await self.fetchData();
     }, this.config.updateInterval);
@@ -95,23 +110,26 @@ module.exports = NodeHelper.create({
   },
 
   async fetchLayerInformation() {
-    const endpoint = this.config.endpoint + "/plugin/DisplayLayerProgress/values";
-  
+    const endpoint =
+      this.config.endpoint + "/plugin/DisplayLayerProgress/values";
+
     try {
       const response = await fetch(endpoint, { headers: this.getHeaders() });
       const text = await response.text();
-  
+
       if (response.headers.get("content-type").includes("application/json")) {
         const json = JSON.parse(text);
         return json;
       } else {
-        Log.error(`${this.name} received an error: Couldn't fetch layer information. Maybe the DisplayLayerProgress plugin is not installed or activated?`);
+        Log.error(
+          `${this.name} received an error: Couldn't fetch layer information. Maybe the DisplayLayerProgress plugin is not installed or activated?`,
+        );
         return null;
       }
     } catch (error) {
       Log.error(`${this.name} received an error: ${error}`);
       this.sendSocketNotification("HTTP_ERROR", {});
-  
+
       return null;
     }
   },
@@ -121,7 +139,12 @@ module.exports = NodeHelper.create({
       return;
     }
 
-    const endpoint = this.config.endpoint + "/api/files/" + job_status.job.file.origin + "/" + job_status.job.file.name;
+    const endpoint =
+      this.config.endpoint +
+      "/api/files/" +
+      job_status.job.file.origin +
+      "/" +
+      job_status.job.file.name;
 
     try {
       const response = await fetch(endpoint, { headers: this.getHeaders() });
@@ -144,7 +167,7 @@ module.exports = NodeHelper.create({
 
   getHeaders() {
     return {
-      "Authorization": `Bearer ${this.config.apiKey}`
+      Authorization: `Bearer ${this.config.apiKey}`,
     };
   },
 });
