@@ -30,7 +30,6 @@ module.exports = NodeHelper.create({
     const printer_status = await this.fetchPrinterStatus();
 
     if (!printer_status) {
-      this.sendSocketNotification("HTTP_ERROR", {});
       this.fetchTimerId = setTimeout(async function () {
         await self.fetchData();
       }, this.config.updateInterval);
