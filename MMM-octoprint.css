@@ -11,7 +11,8 @@
 .MMM-octoprint .row {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: baseline;
 }
 
 .MMM-octoprint .row-center {
@@ -29,6 +30,9 @@
 .MMM-octoprint .column {
     min-width: 0;
     flex-basis: 40%;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding-right: 8px;
 }
 
 .MMM-octoprint .column-text-of {
@@ -43,6 +47,7 @@
     min-width: 0;
     flex-basis: 60%;
     white-space: nowrap;
+    overflow: hidden;
 }
 
 .MMM-octoprint {
