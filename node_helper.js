@@ -12,6 +12,8 @@ const moment = require("moment");
 module.exports = NodeHelper.create({
   config: {},
   currentFile: null,
+  thumbnailCache: null,
+  maxThumbnailBytes: 4 * 1024 * 1024,
   async socketNotificationReceived(notification, payload) {
     if (notification === "CONFIG") {
       this.config = payload;
@@ -176,16 +178,66 @@ module.exports = NodeHelper.create({
       // The plugin reports the thumbnail path unencoded and relative to the
       // OctoPrint root. The trailing slash on the base keeps sub paths of
       // reverse proxied instances (e.g. http://host/octoprint) intact.
-      return new URL(
+      const thumbnailUrl = new URL(
         json.thumbnail.replace(/^\/+/, ""),
         this.config.endpoint.replace(/\/+$/, "") + "/",
       ).href;
+
+      return await this.fetchThumbnailImage(thumbnailUrl);
     } catch (error) {
       Log.error(`${this.name} received an error: ${error}`);
       this.sendSocketNotification("HTTP_ERROR", {});
 
       return null;
     }
+  },
+
+  // The mirror renders the thumbnail with a plain <img> tag, which cannot send
+  // the API key. Depending on the OctoPrint access settings the thumbnail route
+  // refuses anonymous requests, so the image is loaded here and handed over as
+  // a data URI instead of a URL the browser would have to fetch itself.
+  async fetchThumbnailImage(thumbnailUrl) {
+    if (this.thumbnailCache && this.thumbnailCache.url === thumbnailUrl) {
+      return this.thumbnailCache.dataUri;
+    }
+
+    const response = await fetch(thumbnailUrl, { headers: this.getHeaders() });
+
+    if (!response.ok) {
+      Log.error(
+        `${this.name} could not load the thumbnail image: ${thumbnailUrl} returned ${response.status} ${response.statusText}`,
+      );
+
+      return this.getFallbackThumbnail();
+    }
+
+    const contentType = (response.headers.get("content-type") || "").split(
+      ";",
+    )[0];
+
+    if (!contentType.startsWith("image/")) {
+      Log.error(
+        `${this.name} expected an image at ${thumbnailUrl} but received "${contentType}"`,
+      );
+
+      return this.getFallbackThumbnail();
+    }
+
+    const image = Buffer.from(await response.arrayBuffer());
+
+    if (image.length > this.maxThumbnailBytes) {
+      Log.warn(
+        `${this.name} does not embed the thumbnail, it is ${image.length} bytes. Using the direct URL instead.`,
+      );
+
+      return thumbnailUrl;
+    }
+
+    const dataUri = `data:${contentType};base64,${image.toString("base64")}`;
+
+    this.thumbnailCache = { url: thumbnailUrl, dataUri };
+
+    return dataUri;
   },
 
   getFallbackThumbnail() {
