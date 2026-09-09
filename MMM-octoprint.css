@@ -28,7 +28,7 @@
 .MMM-octoprint .column {
     white-space: nowrap;
     padding-right: 8px;
-    text-align: right;
+    text-align: left;
 }
 
 .MMM-octoprint .column-text-of {
