@@ -20,7 +20,7 @@
         </div>
     {% else %}
         <div class="container">
-            {% if config.showThumbnail %}
+            {% if config.showThumbnail and thumbnail %}
                 <div class="row-center">
                     <img class="thumb" width="{{ config.thumbnailSize }}" src="{{ thumbnail }}"/>
                 </div>

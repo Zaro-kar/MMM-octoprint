@@ -135,34 +135,61 @@ module.exports = NodeHelper.create({
   },
 
   async fetchThumbnail(job_status) {
-    if (!job_status.job.file.name) {
-      return;
+    const file = job_status && job_status.job ? job_status.job.file : null;
+
+    // The job API reports "name" as the bare file name. Only "path" contains
+    // the folder structure the file API expects.
+    const filePath = file ? file.path || file.name : null;
+
+    if (!filePath) {
+      return this.getFallbackThumbnail();
     }
 
     const endpoint =
-      this.config.endpoint +
+      this.config.endpoint.replace(/\/+$/, "") +
       "/api/files/" +
-      job_status.job.file.origin +
+      encodeURIComponent(file.origin || "local") +
       "/" +
-      job_status.job.file.name;
+      filePath.split("/").map(encodeURIComponent).join("/");
 
     try {
       const response = await fetch(endpoint, { headers: this.getHeaders() });
+
+      if (!response.ok) {
+        Log.error(
+          `${this.name} could not fetch the thumbnail: ${endpoint} returned ${response.status} ${response.statusText}`,
+        );
+
+        return this.getFallbackThumbnail();
+      }
+
       const json = await response.json();
 
       if (!json.thumbnail) {
-        json.thumbnail = "./modules/MMM-octoprint/img/no_thumbnail.png";
-      } else {
-        json.thumbnail = this.config.endpoint + "/" + json.thumbnail;
+        Log.warn(
+          `${this.name} found no thumbnail for "${filePath}". Is the Slicer Thumbnails plugin installed and does the gcode file contain a thumbnail?`,
+        );
+
+        return this.getFallbackThumbnail();
       }
 
-      return json.thumbnail;
+      // The plugin reports the thumbnail path unencoded and relative to the
+      // OctoPrint root. The trailing slash on the base keeps sub paths of
+      // reverse proxied instances (e.g. http://host/octoprint) intact.
+      return new URL(
+        json.thumbnail.replace(/^\/+/, ""),
+        this.config.endpoint.replace(/\/+$/, "") + "/",
+      ).href;
     } catch (error) {
       Log.error(`${this.name} received an error: ${error}`);
       this.sendSocketNotification("HTTP_ERROR", {});
 
       return null;
     }
+  },
+
+  getFallbackThumbnail() {
+    return "./modules/MMM-octoprint/img/no_thumbnail.png";
   },
 
   getHeaders() {
